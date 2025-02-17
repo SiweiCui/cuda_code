@@ -13,7 +13,7 @@ void cpu_reduce(float *in, float &out, int size) {
 }
 
 // Version 1: 相邻规约
-template<const int BLOCK_DIM>
+template<const int BLOCK_DIM> // 128
 __global__ void reduce(float *in_gpu, float *out_gpu, int size) {
 	int tid = threadIdx.x;
 	__shared__ float block_data[BLOCK_DIM];
@@ -128,12 +128,16 @@ __global__ void reduce4(float *in_gpu, float *out_gpu, int size) {
 	int wrap_id = tid / WRAP_SIZE;
 
 	__shared__ float block_wrap_data[wrap_num];
+
+	// 把数值收集到block的线程中
 	float val = 0.f;
 	for (int j = tid; j < size; j += blockDim.x) {
 		val += in_gpu[j];
 	}
 
+	// 在wrap内收集一次
 	val = wrap_reduce<WRAP_SIZE>(val);
+	// 写入每个wrap的和
 	if (tid_in_wrap == 0) {
 		block_wrap_data[wrap_id] = val;
 	}

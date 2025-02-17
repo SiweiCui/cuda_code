@@ -6,6 +6,11 @@
 #include<gtest/gtest.h>
 #include "utils.hpp"
 
+
+/*     A1  A2               A1^T   A3^T
+ *A =           Then A^T =
+ *     A3  A4               A2^T   A4^T
+ */
 template<int BLOCK_DIM>
 __global__ void transpose2(float *input, float *output, int M, int N) {
     __shared__ float sdata[BLOCK_DIM * BLOCK_DIM];
@@ -15,12 +20,13 @@ __global__ void transpose2(float *input, float *output, int M, int N) {
     //     return;
     // }提前终止线程是一个不好的做法
 
+    // load分块数据, 原封不动load
     if (row < M && col < N) {
         sdata[threadIdx.y*BLOCK_DIM + threadIdx.x] = input[row*N + col];// 正常读, 合并访存, 也避免了bank conflict
     }
     __syncthreads();
 
-    //
+    // 写回, 先转置整个分块矩阵(交换block维度), 再在每个分块矩阵内转置(分块sdata内访问对角元素). 主要是合并访存
     int target_row = blockIdx.x * BLOCK_DIM + threadIdx.y;
     int target_col = blockIdx.y * BLOCK_DIM + threadIdx.x;
     if (target_row < N && target_col < M) {
@@ -47,11 +53,6 @@ __global__ void transpose(float *input, float *output, int M, int N) {
     }
 }
 
-/*     A1  A2               A1^T   A3^T
- *A =           Then A^T =
- *     A3  A4               A2^T   A4^T
- *
- */
 
 TEST(test_transpose, test1){
     int M = 3, N = 4;
