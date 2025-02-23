@@ -5,6 +5,9 @@
 #include <cuda_runtime.h>
 #include <gtest/gtest.h>
 
+
+// 按理说, 需要执行多个核函数的时候, cuda流才好用
+
 #define N 1024  // 向量大小
 #define STREAM_COUNT 2  // 使用两个流
 

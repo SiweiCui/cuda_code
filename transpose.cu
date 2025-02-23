@@ -31,6 +31,7 @@ __global__ void transpose2(float *input, float *output, int M, int N) {
     int target_col = blockIdx.y * BLOCK_DIM + threadIdx.x;
     if (target_row < N && target_col < M) {
         output[target_row*M + target_col] = sdata[threadIdx.x*BLOCK_DIM + threadIdx.y];// 合并访存, 但是出现bank conflict
+                                             // sdata访问对角元素
     }
 }
 

@@ -55,6 +55,8 @@ TEST(test_conv, test1) {
 			case 2:
 				kernel[i] = 1;
 				break;
+			default:
+				break;
 		}
 	}
 

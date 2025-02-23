@@ -28,6 +28,8 @@ void softmax_cpu(float *input, float *output, int length) {
  *假设length整除block大小
  *先写出来再考虑优化.
  */
+
+// 事实上这个版本还是太难了, naive一点就好
 __global__ void online_softmax_gpu(float *input, float *output, int length) {
 	__shared__ float m;
 	__shared__ float l;
